@@ -1115,6 +1115,31 @@ bool <a id="test">test</a>(size_type n) const
 <tt>false</tt> is bit <tt>n</tt> is 0.
 
 <hr />
+              <pre>
+bool <a id="test_set">test_set</a>(size_type n) const
+</pre><b>Precondition:</b> <tt>n &lt; this-&gt;size()</tt>.<br />
+
+              <b>Returns:</b> <tt>true</tt> if bit <tt>n</tt> is set and
+              <tt>false</tt> is bit <tt>n</tt> is 0. <b>Postcondition:</b>
+              this-&gt;test(n).<br />
+              <hr />
+              <pre>
+bool <a id="test_reset">test_reset</a>(size_type n) const
+</pre><b>Precondition:</b> <tt>n &lt; this-&gt;size()</tt>.<br />
+
+              <b>Returns:</b> <tt>true</tt> if bit <tt>n</tt> is set and
+              <tt>false</tt> is bit <tt>n</tt> is 0. <b>Postcondition:</b>
+              !this-&gt;test(n).<br />
+              <hr />
+              <pre>
+bool <a id="test_flip">test_flip</a>(size_type n) const
+</pre><b>Precondition:</b> <tt>n &lt; this-&gt;size()</tt>.<br />
+
+              <b>Returns:</b> <tt>true</tt> if bit <tt>n</tt> is set and
+              <tt>false</tt> is bit <tt>n</tt> is 0. <b>Postcondition:</b>
+              this-&gt;test(n).<br />
+<hr />
+
 <pre>
 reference <a id="bracket">operator[]</a>(size_type n)
 </pre>
@@ -1206,6 +1231,36 @@ size_type <a id="find_next">find_next</a>(size_type pos) const;
 no such index exists.
 
 <hr />
+
+<pre>
+size_type <a id="rfind_first">rfind_first</a>() const;
+</pre><b>Returns:</b> the highest index <tt>i</tt> such as bit <tt>
+              i</tt> is set, or <tt>npos</tt> if <tt>*this</tt> has no on
+              bits.
+              <hr />
+              <pre>
+size_type <a id="rfind_next">rfind_next</a>(size_type pos) const;
+</pre><b>Returns:</b> the highest index <tt>i</tt> less than <tt>
+              pos</tt> such as bit <tt>i</tt> is set, or <tt>npos</tt> if no
+              such index exists.
+              <hr />
+              <pre>
+block_type&amp; <a id="block">block</a>(size_type block_index);
+</pre><b>Returns:</b> m_bits[block_index] - allows efficient user
+implementation of algorithms that can be block-parallelized.
+              <hr />
+              <pre>
+block_type * <a id="blocks">blocks</a>();
+</pre><b>Returns:</b> pointer to internal blocks array (of size
+ num_blocks())  - allows efficient user
+implementation of algorithms that can be block-parallelized.
+              <hr />
+
+              <pre>
+block_type * <a id="blocks_end">blocks_end</a>();
+</pre><b>Returns:</b> blocks() + num_blocks() end of internal blocks array
+              <hr />
+
 <pre>
 bool <a id=
 "op-equal">operator==</a>(const dynamic_bitset&amp; rhs) const

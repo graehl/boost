@@ -19,7 +19,7 @@
 #include <vector>
 #include <climits>      // for CHAR_BIT
 
-#include "boost/dynamic_bitset/config.hpp"
+#include <boost/dynamic_bitset/config.hpp>
 
 #ifndef BOOST_NO_STD_LOCALE
 #  include <locale>
@@ -33,12 +33,12 @@
 #  include <ostream>
 #endif
 
-#include "boost/dynamic_bitset_fwd.hpp"
-#include "boost/detail/dynamic_bitset.hpp"
-#include "boost/detail/iterator.hpp" // used to implement append(Iter, Iter)
-#include "boost/static_assert.hpp"
-#include "boost/limits.hpp"
-#include "boost/pending/lowest_bit.hpp"
+#include <boost/dynamic_bitset_fwd.hpp>
+#include <boost/detail/dynamic_bitset.hpp>
+#include <boost/detail/iterator.hpp> // used to implement append(Iter, Iter)
+#include <boost/static_assert.hpp>
+#include <boost/limits.hpp>
+#include <boost/pending/lowest_bit.hpp>
 
 
 namespace boost {
@@ -54,7 +54,7 @@ class dynamic_bitset
   // of VC++ are likely able to digest a more drinking form of the
   // code; but changing it now is probably not worth the risks...]
 
-  BOOST_STATIC_ASSERT((bool)detail::dynamic_bitset_impl::allowed_block_type<Block>::value);
+  BOOST_STATIC_ASSERT((bool)boost::detail::dynamic_bitset_impl::allowed_block_type<Block>::value);
 
 public:
     typedef Block block_type;
@@ -179,14 +179,14 @@ public:
 
     template <typename T>
     void dispatch_init(T num_bits, unsigned long value,
-                       detail::dynamic_bitset_impl::value_to_type<true>)
+                       boost::detail::dynamic_bitset_impl::value_to_type<true>)
     {
         init_from_unsigned_long(static_cast<size_type>(num_bits), value);
     }
 
     template <typename T>
     void dispatch_init(T first, T last,
-                       detail::dynamic_bitset_impl::value_to_type<false>)
+                       boost::detail::dynamic_bitset_impl::value_to_type<false>)
     {
         init_from_block_range(first, last);
     }
@@ -246,7 +246,7 @@ public:
     void append(BlockInputIterator first, BlockInputIterator last) // strong guarantee
     {
         if (first != last) {
-            typename detail::iterator_traits<BlockInputIterator>::iterator_category cat;
+            typename boost::detail::iterator_traits<BlockInputIterator>::iterator_category cat;
             m_append(first, last, cat);
         }
     }
@@ -274,6 +274,9 @@ public:
     bool none() const;
     dynamic_bitset operator~() const;
     size_type count() const;
+    bool test_set(size_type n);
+    bool test_reset(size_type n);
+    bool test_flip(size_type n);
 
     // subscript
     reference operator[](size_type pos) {
@@ -296,6 +299,34 @@ public:
     size_type find_first() const;
     size_type find_next(size_type pos) const;
 
+    size_type rfind_first() const;
+    size_type rfind_next(size_type pos) const;
+
+    block_type block(size_type block_index) const {
+      assert(block_index < m_bits.size());
+      return m_bits[block_index];
+    }
+
+    block_type& block(size_type block_index) {
+      assert(block_index < m_bits.size());
+      return m_bits[block_index];
+    }
+
+    block_type const* blocks() const {
+      return &m_bits[0];
+    }
+
+    block_type const* blocks_end() const {
+      return blocks() + num_blocks();
+    }
+
+    block_type* blocks() {
+      return &m_bits[0];
+    }
+
+    block_type* blocks_end() {
+      return blocks() + num_blocks();
+    }
 
 #if !defined BOOST_DYNAMIC_BITSET_DONT_USE_FRIENDS
     // lexicographical comparison
@@ -336,6 +367,7 @@ private:
     bool m_check_invariants() const;
 
     size_type m_do_find_from(size_type first_block) const;
+    size_type m_do_rfind_from(size_type first_block) const;
 
     block_width_type count_extra_bits() const { return bit_index(size()); }
     static size_type block_index(size_type pos) { return pos / bits_per_block; }
@@ -410,10 +442,10 @@ private:
     }
 
 
-
 BOOST_DYNAMIC_BITSET_PRIVATE:
 
     bool m_unchecked_test(size_type pos) const;
+
     static size_type calc_num_blocks(size_type num_bits);
 
     Block&        m_highest_block();
@@ -858,7 +890,6 @@ dynamic_bitset<B, A> & dynamic_bitset<B, A>::operator>>=(size_type n) {
         }
 
 
-
         // div blocks are zero filled at the most significant end
         std::fill_n(b + (num_blocks()-div), div, static_cast<block_type>(0));
     }
@@ -959,6 +990,45 @@ bool dynamic_bitset<Block, Allocator>::m_unchecked_test(size_type pos) const
     return (m_bits[block_index(pos)] & bit_mask(pos)) != 0;
 }
 
+// set(pos) and return previous bit at pos
+template <typename Block, typename Allocator>
+bool dynamic_bitset<Block, Allocator>::test_set(size_type pos)
+{
+    assert(pos < m_num_bits);
+    Block &modify_block = m_bits[block_index(pos)];
+    Block mask = bit_mask(pos);
+    bool bit = modify_block & mask;
+    modify_block |= mask;
+    return bit;
+}
+
+// reset(pos) and return previous bit at pos
+template <typename Block, typename Allocator>
+bool dynamic_bitset<Block, Allocator>::test_reset(size_type pos)
+{
+    assert(pos < m_num_bits);
+    Block &modify_block = m_bits[block_index(pos)];
+    Block mask = bit_mask(pos);
+    bool bit = modify_block & mask;
+    modify_block &= ~mask;
+    return bit;
+}
+
+// flip(pos) and return previous bit at pos
+template <typename Block, typename Allocator>
+bool dynamic_bitset<Block, Allocator>::test_flip(size_type pos)
+{
+    assert(pos < m_num_bits);
+    Block &modify_block = m_bits[block_index(pos)];
+    Block mask = bit_mask(pos);
+    bool bit = modify_block & mask;
+    if (bit)
+      modify_block &= ~mask;
+    else
+      modify_block |= mask;
+    return bit;
+}
+
 template <typename Block, typename Allocator>
 bool dynamic_bitset<Block, Allocator>::test(size_type pos) const
 {
@@ -994,10 +1064,10 @@ template <typename Block, typename Allocator>
 typename dynamic_bitset<Block, Allocator>::size_type
 dynamic_bitset<Block, Allocator>::count() const
 {
-    using detail::dynamic_bitset_impl::table_width;
-    using detail::dynamic_bitset_impl::access_by_bytes;
-    using detail::dynamic_bitset_impl::access_by_blocks;
-    using detail::dynamic_bitset_impl::value_to_type;
+    using boost::detail::dynamic_bitset_impl::table_width;
+    using boost::detail::dynamic_bitset_impl::access_by_bytes;
+    using boost::detail::dynamic_bitset_impl::access_by_blocks;
+    using boost::detail::dynamic_bitset_impl::value_to_type;
 
 #if BOOST_WORKAROUND(__GNUC__, == 4) && (__GNUC_MINOR__ == 3) && (__GNUC_PATCHLEVEL__ == 3)
     // NOTE: Explicit qualification of "bits_per_block"
@@ -1152,7 +1222,7 @@ dynamic_bitset<Block, Allocator>::max_size() const
     // his own allocator.
     //
 
-    const size_type m = detail::dynamic_bitset_impl::
+    const size_type m = boost::detail::dynamic_bitset_impl::
                         vector_max_size_workaround(m_bits);
 
     return m <= (size_type(-1)/bits_per_block) ?
@@ -1235,6 +1305,27 @@ dynamic_bitset<Block, Allocator>::m_do_find_from(size_type first_block) const
 }
 
 
+// reverse order version of m_do_find_from: look for the last bit "on", starting
+// from the block with index first_block, down to block index 0 (returning npos
+// if none found)
+//
+template <typename Block, typename Allocator>
+typename dynamic_bitset<Block, Allocator>::size_type
+dynamic_bitset<Block, Allocator>::m_do_rfind_from(size_type first_block) const
+{
+  assert(first_block != npos);
+
+  size_type i = first_block;
+  for ( ; ; --i) {
+    if (m_bits[i])
+      break;
+    if (!i)
+      return npos; // not found
+  }
+  return i * bits_per_block + boost::integer_log2(m_bits[i]); // integer log2 = position of highest set bit
+}
+
+
 template <typename Block, typename Allocator>
 typename dynamic_bitset<Block, Allocator>::size_type
 dynamic_bitset<Block, Allocator>::find_first() const
@@ -1242,6 +1333,13 @@ dynamic_bitset<Block, Allocator>::find_first() const
     return m_do_find_from(0);
 }
 
+// look for the last bit "on"
+template <typename Block, typename Allocator>
+typename dynamic_bitset<Block, Allocator>::size_type
+dynamic_bitset<Block, Allocator>::rfind_first() const
+{
+  return m_bits.empty() ? npos : m_do_rfind_from(m_bits.size() - 1);
+}
 
 template <typename Block, typename Allocator>
 typename dynamic_bitset<Block, Allocator>::size_type
@@ -1257,16 +1355,33 @@ dynamic_bitset<Block, Allocator>::find_next(size_type pos) const
     const size_type blk = block_index(pos);
     const block_width_type ind = bit_index(pos);
 
-    // mask out bits before pos
-    const Block fore = m_bits[blk] & ( ~Block(0) << ind );
+    const Block fore = m_bits[blk] >> ind;
 
     return fore?
-        blk * bits_per_block + lowest_bit(fore)
+        pos + boost::lowest_bit(fore)
         :
         m_do_find_from(blk + 1);
 
 }
 
+
+template <typename Block, typename Allocator>
+typename dynamic_bitset<Block, Allocator>::size_type
+dynamic_bitset<Block, Allocator>::rfind_next(size_type pos) const
+{
+  assert(pos != npos);
+  if (pos == 0)
+    return npos;
+
+  --pos;
+
+  const size_type blk = block_index(pos);
+  const block_width_type ind = bit_index(pos);
+
+  // mask out bits after pos
+  const Block after = m_bits[blk] & ( ~Block(0) >> ind );
+  return after ? blk * bits_per_block + boost::integer_log2(after) : m_do_rfind_from(blk - 1);
+}
 
 
 //-----------------------------------------------------------------------------
@@ -1758,4 +1873,3 @@ bool dynamic_bitset<Block, Allocator>::m_check_invariants() const
 #undef BOOST_BITSET_CHAR
 
 #endif // include guard
-

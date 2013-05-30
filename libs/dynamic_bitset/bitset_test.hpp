@@ -112,7 +112,7 @@ template <typename Bitset>
 struct bitset_test {
 
   typedef typename Bitset::block_type Block;
-  BOOST_STATIC_CONSTANT(int, bits_per_block = Bitset::bits_per_block);
+  BOOST_STATIC_CONSTANT(typename Bitset::block_width_type, bits_per_block = Bitset::bits_per_block);
 
   // from unsigned long
   //
@@ -622,6 +622,40 @@ struct bitset_test {
     }
   }
 
+  static void test_set(Bitset& b, std::size_t pos)
+  {
+    bool val = b.test(pos);
+    BOOST_CHECK(b.test_set(pos) == val);
+    BOOST_CHECK(b.test(pos));
+    b.set(pos, val);
+    BOOST_CHECK(b.test(pos) == val);
+  }
+
+  static void test_reset(Bitset& b, std::size_t pos)
+  {
+    bool val = b.test(pos);
+    BOOST_CHECK(b.test_reset(pos) == val);
+    BOOST_CHECK(!b.test(pos));
+    b.set(pos, val);
+    BOOST_CHECK(b.test(pos) == val);
+  }
+
+  static void test_flip(Bitset& b, std::size_t pos)
+  {
+    bool val = b.test(pos);
+    BOOST_CHECK(b.test_flip(pos) == val);
+    BOOST_CHECK(b.test(pos) == !val);
+    b.set(pos, val);
+    BOOST_CHECK(b.test(pos) == val);
+  }
+
+  static void test_and(Bitset& b, std::size_t pos)
+  {
+    test_set(b, pos);
+    test_reset(b, pos);
+    test_flip(b, pos);
+  }
+
   // empty
   static void empty(const Bitset& b)
   {
@@ -799,10 +833,45 @@ struct bitset_test {
 
   }
 
+  static void rfind_first(const Bitset& b)
+  {
+    if (b.size()) {
+      typename Bitset::size_type i = b.size() - 1;
+      // find last set bit, if any
+      for ( ; ; --i) {
+        if (b[i]) {
+          BOOST_CHECK(b.rfind_first() == i);
+          return;
+        }
+        if (!i) break;
+      }
+    }
+    BOOST_CHECK(b.rfind_first() == Bitset::npos);
+  }
+
+
   static void find_next(const Bitset& b, typename Bitset::size_type prev)
   {
     BOOST_CHECK(next_bit_on(b, prev) == b.find_next(prev));
   }
+
+  static void rfind_next(const Bitset& b, typename Bitset::size_type prev) {
+    if (prev != Bitset::npos) {
+      if (prev > 0) {
+        typename Bitset::size_type i = prev - 1;
+        // find next smallest set bit, if any
+        for (;; --i) {
+          if (b[i]) {
+            BOOST_CHECK(b.rfind_first() == i);
+            return;
+          }
+          if (!i) break;
+        }
+      }
+      BOOST_CHECK(b.rfind_next(prev) == Bitset::npos);
+    }
+  }
+
 
   static void operator_equal(const Bitset& a, const Bitset& b)
   {
@@ -1227,7 +1296,6 @@ struct bitset_test {
 
 
 };
-
 
 
 #endif // include guard

@@ -151,6 +151,9 @@
 #        define BOOST_NO_RTTI
 #     endif
 #  endif
+#  ifndef BOOST_BUILTIN_CTZ
+#   define BOOST_BUILTIN_CTZ
+#  endif
 #endif
 
 //
@@ -276,5 +279,3 @@
 //#     warning "Unknown compiler version - please run the configure tests and report the results"
 #  endif
 #endif
-
-

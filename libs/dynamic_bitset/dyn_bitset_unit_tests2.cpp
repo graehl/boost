@@ -272,6 +272,9 @@ void run_test_cases( BOOST_EXPLICIT_TEMPLATE_TYPE(Block) )
   { // case pos == b.size() / 2
     boost::dynamic_bitset<Block> b(long_string);
     Tests::flip_one(b, long_string.size()/2);
+    typedef typename boost::dynamic_bitset<Block>::size_type size_type;
+    for (size_type pos = 0, n = b.size(); pos<n; pos+=(n/5+1))
+      Tests::test_and(b, pos);
   }
 }
 

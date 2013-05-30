@@ -19,8 +19,8 @@
 #ifdef __BORLANDC__
 #include <climits>
 #endif
-#include "boost/limits.hpp"
-#include "boost/config.hpp"
+#include <boost/limits.hpp>
+#include <boost/config.hpp>
 
 
 namespace boost {
@@ -44,7 +44,6 @@ namespace boost {
 
       return result;
   }
-
 
 
   // helper to find the maximum power of two
@@ -104,9 +103,7 @@ namespace boost {
  }
 
 
-
 }
-
 
 
 #endif // include guard
