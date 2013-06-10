@@ -6,31 +6,33 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_TRANSLATE_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_TRANSLATE_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_TRANSFORM_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_TRANSFORM_HPP
 
 #include <boost/geometry/extensions/algebra/geometries/concepts/vector_concept.hpp>
+#include <boost/geometry/extensions/algebra/geometries/concepts/rotation_quaternion_concept.hpp>
+#include <boost/geometry/extensions/algebra/geometries/concepts/rotation_matrix_concept.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 
 namespace boost { namespace geometry {
 
-namespace detail { namespace translate {
+namespace detail { namespace transform_geometrically {
 
 template <typename Box, typename Vector, std::size_t Dimension>
-struct box_cartesian
+struct box_vector_cartesian
 {
     BOOST_MPL_ASSERT_MSG((0 < Dimension), INVALID_DIMENSION, (Box));
 
     static inline void apply(Box & box, Vector const& vector)
     {
-        box_cartesian<Box, Vector, Dimension-1>::apply(box, vector);
+        box_vector_cartesian<Box, Vector, Dimension-1>::apply(box, vector);
         set<min_corner, Dimension-1>(box, get<min_corner, Dimension-1>(box) + get<Dimension-1>(vector));
         set<max_corner, Dimension-1>(box, get<max_corner, Dimension-1>(box) + get<Dimension-1>(vector));
     }
 };
 
 template <typename Box, typename Vector>
-struct box_cartesian<Box, Vector, 1>
+struct box_vector_cartesian<Box, Vector, 1>
 {
     static inline void apply(Box & box, Vector const& vector)
     {
@@ -39,21 +41,25 @@ struct box_cartesian<Box, Vector, 1>
     }
 };
 
-}} // namespace detail::translate
+}} // namespace detail::transform
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch {
 
-template <typename Geometry, typename Vector, typename Tag = typename tag<Geometry>::type>
-struct translate
+template <typename Geometry, typename Transform,
+          typename GTag = typename tag<Geometry>::type,
+          typename TTag = typename tag<Transform>::type>
+struct transform_geometrically
 {
-    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_TAG, (Tag));
+    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THOSE_TAGS, (GTag, TTag));
 };
 
+// Point translation by Vector
 template <typename Point, typename Vector>
-struct translate<Point, Vector, point_tag>
+struct transform_geometrically<Point, Vector, point_tag, vector_tag>
 {
     BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
+    BOOST_CONCEPT_ASSERT( (concept::Vector<Vector>) );
 
     static inline void apply(Point & point, Vector const& vector)
     {
@@ -78,12 +84,14 @@ struct translate<Point, Vector, point_tag>
     }
 };
 
+// Box translation by Vector
 template <typename Box, typename Vector>
-struct translate<Box, Vector, box_tag>
+struct transform_geometrically<Box, Vector, box_tag, vector_tag>
 {
     typedef typename traits::point_type<Box>::type point_type;
 
     BOOST_CONCEPT_ASSERT( (concept::Point<point_type>) );
+    BOOST_CONCEPT_ASSERT( (concept::Vector<Vector>) );
 
     static inline void apply(Box & box, Vector const& vector)
     {
@@ -98,7 +106,7 @@ struct translate<Box, Vector, box_tag>
 
     static inline void apply(Box & box, Vector const& vector, boost::mpl::bool_<true> /*is_cartesian*/)
     {
-        geometry::detail::translate::box_cartesian<
+        geometry::detail::transform_geometrically::box_vector_cartesian<
             Box, Vector, traits::dimension<point_type>::value
         >::apply(box, vector);
     }
@@ -110,34 +118,56 @@ struct translate<Box, Vector, box_tag>
     }
 };
 
-// TODO - other geometries
+// Vector rotation by Quaternion
+template <typename Vector, typename RotationQuaternion>
+struct transform_geometrically<Vector, RotationQuaternion, vector_tag, rotation_quaternion_tag>
+{
+    static inline void apply(Vector & v, RotationQuaternion const& r)
+    {
+        concept::check_concepts_and_equal_dimensions<Vector, RotationQuaternion const>();
+
+        detail::algebra::quaternion_rotate(v, r);
+    }
+};
+
+// Vector rotation by Matrix
+template <typename Vector, typename RotationMatrix>
+struct transform_geometrically<Vector, RotationMatrix, vector_tag, rotation_matrix_tag>
+{
+    static inline void apply(Vector & v, RotationMatrix const& r)
+    {
+        concept::check_concepts_and_equal_dimensions<Vector, RotationMatrix const>();
+
+        // TODO vector_type and convert from Vector
+        Vector tmp(v);
+        detail::algebra::matrix_rotate(r, tmp, v);
+    }
+};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
-template <typename Geometry, typename Vector>
-inline void translate(Geometry & g, Vector const& v)
+template <typename Geometry, typename Transformation>
+inline void transform_geometrically(Geometry & g, Transformation const& t)
 {
-    concept::check_concepts_and_equal_dimensions<Geometry, Vector const>();
-
-    dispatch::translate<Geometry, Vector>::apply(g, v);
+    dispatch::transform_geometrically<Geometry, Transformation>::apply(g, t);
 }
 
-template <typename GeometrySrc, typename Vector, typename GeometryDst>
-inline void translated(GeometrySrc const& gsrc, Vector const& v, GeometryDst & gdst)
+template <typename GeometrySrc, typename Transformation, typename GeometryDst>
+inline void transformed_geometrically(GeometrySrc const& gsrc, Transformation const& t, GeometryDst & gdst)
 {
     geometry::convert(gsrc, gdst);
-    geometry::translate(gdst, v);
+    geometry::transform_geometrically(gdst, t);
 }
 
-template <typename GeometryDst, typename GeometrySrc, typename Vector>
-inline GeometryDst return_translated(GeometrySrc const& gsrc, Vector const& v)
+template <typename GeometryDst, typename GeometrySrc, typename Transformation>
+inline GeometryDst return_transformed_geometrically(GeometrySrc const& gsrc, Transformation const& t)
 {
     GeometryDst res;
-    translated(gsrc, v, res);
+    transformed_geometrically(gsrc, t, res);
     return res;
 }
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_TRANSLATE_HPP
+#endif // BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_TRANSFORM_HPP

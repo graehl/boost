@@ -15,6 +15,7 @@
 
 * [@http://svn.boost.org/trac/boost/ticket/8273 #8273] Add externally locked streams
 * [@http://svn.boost.org/trac/boost/ticket/8274 #8274] Add concurrent queue
+* [@http://svn.boost.org/trac/boost/ticket/8515 #8515] Async: Add shared_future::then
 * [@http://svn.boost.org/trac/boost/ticket/8518 #8518] Sync: Add a latch class
 * [@http://svn.boost.org/trac/boost/ticket/8615 #8615] Async: Replace make_future/make_shared_future by make_ready_future
 
@@ -54,7 +55,10 @@
 * [@http://svn.boost.org/trac/boost/ticket/8443 #8443] Header file inclusion order may cause crashes
 * [@http://svn.boost.org/trac/boost/ticket/8451 #8451] Missing documented function 'boost::scoped_thread::joinable'
 * [@http://svn.boost.org/trac/boost/ticket/8530 #8530] [Coverity] Unused variable thread_handle, uninitialized variable cond_mutex in thread/pthread/thread_data.hpp
+* [@http://svn.boost.org/trac/boost/ticket/8576 #8576] "sur parolle" should be "sur parole".
 * [@http://svn.boost.org/trac/boost/ticket/8596 #8596] With C++0x enabled, boost::packaged_task stores a reference to function objects, instead of a copy.
+* [@http://svn.boost.org/trac/boost/ticket/8626 #8626] Reintroduce BOOST_VERIFY on pthread_mutex_destroy return type
+* [@http://svn.boost.org/trac/boost/ticket/8645 #8645] Typo in Strict lock definition
 
 [heading Version 4.0.0 - boost 1.53]
 
@@ -406,7 +410,7 @@ The following features will be included in next releases.
   * [@http://svn.boost.org/trac/boost/ticket/8273 #8273] Add externally locked streams
   * [@http://svn.boost.org/trac/boost/ticket/8274 #8274] Add concurrent queue
   * [@http://svn.boost.org/trac/boost/ticket/8518 #8518] Sync: Add a latch class
-  * [@http://svn.boost.org/trac/boost/ticket/XXXX #XXXX] Sync: Add a completion_latch class
+  * [@http://svn.boost.org/trac/boost/ticket/8519 #8519] Sync: Add a completion_latch class
   * [@http://svn.boost.org/trac/boost/ticket/8513 #8513] Async: Add a basic thread_pool executor.
   * [@http://svn.boost.org/trac/boost/ticket/8514 #8514] Async: Add a thread_pool executor with work stealing.
 
@@ -417,7 +421,8 @@ The following features will be included in next releases.
   * [@http://svn.boost.org/trac/boost/ticket/7448 #7448] Async: Add async taking a scheduler parameter.
   * [@http://svn.boost.org/trac/boost/ticket/8515 #8515] Async: Add shared_future::then
   * [@http://svn.boost.org/trac/boost/ticket/8516 #8516] Async: Add future/shared_future::then taking a scheduler as parameter.
-  * [@http://svn.boost.org/trac/boost/ticket/8517 #8517] Async: Add a variadic future/shared_future::then  
+  * [@http://svn.boost.org/trac/boost/ticket/8517 #8517] Async: Add a variadic shared_future::then  
+  * [@http://svn.boost.org/trac/boost/ticket/8627 #8627] Async: Add future<>::unwrap.
 
 
 

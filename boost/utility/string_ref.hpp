@@ -402,6 +402,38 @@ namespace boost {
         return basic_string_ref<charT, traits>(x) >= y;
         }
 
+    namespace detail {
+
+        template<class charT, class traits>
+        inline void insert_fill_chars(std::basic_ostream<charT, traits>& os, std::size_t n) {
+            enum { chunk_size = 8 };
+            charT fill_chars[chunk_size];
+            std::fill_n(fill_chars, static_cast< std::size_t >(chunk_size), os.fill());
+            for (; n >= chunk_size && os.good(); n -= chunk_size)
+                os.write(fill_chars, static_cast< std::size_t >(chunk_size));
+            if (n > 0 && os.good())
+                os.write(fill_chars, n);
+            }
+
+        template<class charT, class traits>
+        void insert_aligned(std::basic_ostream<charT, traits>& os, const basic_string_ref<charT,traits>& str) {
+            const std::size_t size = str.size();
+            const std::size_t alignment_size = static_cast< std::size_t >(os.width()) - size;
+            const bool align_left = (os.flags() & std::basic_ostream<charT, traits>::adjustfield) == std::basic_ostream<charT, traits>::left;
+            if (!align_left) {
+                detail::insert_fill_chars(os, alignment_size);
+                if (os.good())
+                    os.write(str.data(), size);
+                }
+            else {
+                os.write(str.data(), size);
+                if (os.good())
+                    detail::insert_fill_chars(os, alignment_size);
+                }
+            }
+
+        } // namespace detail
+
     // Inserter
     template<class charT, class traits>
     inline std::basic_ostream<charT, traits>&
@@ -409,25 +441,11 @@ namespace boost {
         if (os.good()) {
             const std::size_t size = str.size();
             const std::size_t w = static_cast< std::size_t >(os.width());
-            os.width(0);
             if (w <= size)
                 os.write(str.data(), size);
-            else {
-                const bool align_left = (os.flags() & std::basic_ostream<charT, traits>::adjustfield) == std::basic_ostream<charT, traits>::left;
-                const std::size_t alignment_size = w - size;
-                if (!align_left) {
-                    const charT fill_char = os.fill();
-                    for (std::size_t i = 0; i < alignment_size && os.good(); ++i)
-                        os.put(fill_char);
-                    }
-                if (os.good())
-                    os.write(str.data(), size);
-                if (align_left && os.good()) {
-                    const charT fill_char = os.fill();
-                    for (std::size_t i = 0; i < alignment_size && os.good(); ++i)
-                        os.put(fill_char);
-                    }
-                }
+            else
+                detail::insert_aligned(os, str);
+            os.width(0);
             }
         return os;
         }

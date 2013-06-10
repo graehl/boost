@@ -55,6 +55,41 @@ struct access<vector_tag, Vector, CoordinateType, Dimension, boost::true_type>
     }
 };
 
+template <typename Q, typename CoordinateType, std::size_t Dimension>
+struct access<rotation_quaternion_tag, Q, CoordinateType, Dimension, boost::false_type>
+{
+    static inline CoordinateType get(Q const& v)
+    {
+        return traits::access<Q, Dimension>::get(v);
+    }
+    static inline void set(Q& v, CoordinateType const& value)
+    {
+        traits::access<Q, Dimension>::set(v, value);
+    }
+};
+
+template <typename Q, typename CoordinateType, std::size_t Dimension>
+struct access<rotation_quaternion_tag, Q, CoordinateType, Dimension, boost::true_type>
+{
+    static inline CoordinateType get(Q const* v)
+    {
+        return traits::access<typename boost::remove_pointer<Q>::type, Dimension>::get(*v);
+    }
+    static inline void set(Q* v, CoordinateType const& value)
+    {
+        traits::access<typename boost::remove_pointer<Q>::type, Dimension>::set(*v, value);
+    }
+};
+
+template<typename RM, typename CoordinateType, std::size_t I, std::size_t J>
+struct indexed_access<rotation_matrix_tag, RM, CoordinateType, I, J, boost::false_type>
+    : detail::indexed_access_non_pointer<RM, CoordinateType, I, J>
+{};
+
+template<typename RM, typename CoordinateType, std::size_t I, std::size_t J>
+struct indexed_access<rotation_matrix_tag, RM, CoordinateType, I, J, boost::true_type>
+    : detail::indexed_access_pointer<RM, CoordinateType, I, J>
+{};
 
 } // namespace core_dispatch
 #endif // DOXYGEN_NO_DISPATCH

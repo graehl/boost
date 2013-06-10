@@ -15,33 +15,49 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_CLEAR_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_CLEAR_HPP
 
-
 #include <boost/geometry/algorithms/clear.hpp>
 
-#include <boost/geometry/extensions/algebra/core/tags.hpp>
-
-
+#include <boost/geometry/extensions/algebra/algorithms/assign.hpp>
 
 namespace boost { namespace geometry
 {
-
 
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
 
+// This is experimental implementation of clear() which assigns zeros to vectors
+// and identities to rotations. It doesn't work for them as for Geometries.
 
+template <typename Vector>
+struct clear<Vector, vector_tag>
+{
+    static inline void apply(Vector & v)
+    {
+        geometry::assign_zero(v);
+    }
+};
 
-template <typename Geometry>
-struct clear<vector_tag, Geometry>
-    : detail::clear::no_action<Geometry>
-{};
+template <typename R>
+struct clear<R, rotation_quaternion_tag>
+{
+    static inline void apply(R & r)
+    {
+        geometry::assign_identity(r);
+    }
+};
 
-
+template <typename R>
+struct clear<R, rotation_matrix_tag>
+{
+    static inline void apply(R & r)
+    {
+        geometry::assign_identity(r);
+    }
+};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
-
 
 }} // namespace boost::geometry
 

@@ -20,18 +20,27 @@
 #include <boost/geometry/extensions/algebra/core/coordinate_system.hpp>
 #include <boost/geometry/extensions/algebra/core/coordinate_type.hpp>
 #include <boost/geometry/extensions/algebra/core/tags.hpp>
-#include <boost/geometry/extensions/algebra/core/topological_dimension.hpp>
 
 #include <boost/geometry/extensions/algebra/geometries/concepts/vector_concept.hpp>
+#include <boost/geometry/extensions/algebra/geometries/concepts/rotation_quaternion_concept.hpp>
+#include <boost/geometry/extensions/algebra/geometries/concepts/rotation_matrix_concept.hpp>
 #include <boost/geometry/extensions/algebra/geometries/concepts/check.hpp>
 
 #include <boost/geometry/extensions/algebra/geometries/vector.hpp>
+#include <boost/geometry/extensions/algebra/geometries/rotation_quaternion.hpp>
+#include <boost/geometry/extensions/algebra/geometries/rotation_matrix.hpp>
 
 #include <boost/geometry/extensions/algebra/algorithms/assign.hpp>
+#include <boost/geometry/extensions/algebra/algorithms/convert.hpp>
+
+// experimental 
 #include <boost/geometry/extensions/algebra/algorithms/clear.hpp>
-#include <boost/geometry/extensions/algebra/algorithms/num_points.hpp>
+#include <boost/geometry/extensions/algebra/algorithms/reverse.hpp>
 
 #include <boost/geometry/extensions/algebra/algorithms/translation.hpp>
-#include <boost/geometry/extensions/algebra/algorithms/translate.hpp>
+#include <boost/geometry/extensions/algebra/algorithms/rotation.hpp>
+
+// should be removed, transform() should be used instead
+#include <boost/geometry/extensions/algebra/algorithms/transform_geometrically.hpp>
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGEBRA_HPP
