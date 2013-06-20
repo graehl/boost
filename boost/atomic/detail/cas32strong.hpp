@@ -18,7 +18,7 @@
 #include <boost/atomic/detail/config.hpp>
 #include <boost/atomic/detail/base.hpp>
 
-#ifdef BOOST_ATOMIC_HAS_PRAGMA_ONCE
+#ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
 #endif
 
@@ -31,13 +31,18 @@ namespace detail {
 template<typename T, bool Sign>
 class base_atomic<T, int, 1, Sign>
 {
+private:
     typedef base_atomic this_type;
     typedef T value_type;
     typedef T difference_type;
     typedef uint32_t storage_type;
+
+protected:
+    typedef value_type value_arg_type;
+
 public:
+    BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
     BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT : v_(v) {}
-    base_atomic(void) {}
 
     void
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -150,22 +155,29 @@ public:
     }
 
     BOOST_ATOMIC_DECLARE_INTEGRAL_OPERATORS
+
+    BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
+    BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
+
 private:
-    base_atomic(const base_atomic &) /* = delete */ ;
-    void operator=(const base_atomic &) /* = delete */ ;
     storage_type v_;
 };
 
 template<typename T, bool Sign>
 class base_atomic<T, int, 2, Sign>
 {
+private:
     typedef base_atomic this_type;
     typedef T value_type;
     typedef T difference_type;
     typedef uint32_t storage_type;
+
+protected:
+    typedef value_type value_arg_type;
+
 public:
+    BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
     BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT : v_(v) {}
-    base_atomic(void) {}
 
     void
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -278,21 +290,28 @@ public:
     }
 
     BOOST_ATOMIC_DECLARE_INTEGRAL_OPERATORS
+
+    BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
+    BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
+
 private:
-    base_atomic(const base_atomic &) /* = delete */ ;
-    void operator=(const base_atomic &) /* = delete */ ;
     storage_type v_;
 };
 
 template<typename T, bool Sign>
 class base_atomic<T, int, 4, Sign>
 {
+private:
     typedef base_atomic this_type;
     typedef T value_type;
     typedef T difference_type;
+
+protected:
+    typedef value_type value_arg_type;
+
 public:
+    BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
     BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT : v_(v) {}
-    base_atomic(void) {}
 
     void
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -401,9 +420,11 @@ public:
     }
 
     BOOST_ATOMIC_DECLARE_INTEGRAL_OPERATORS
+
+    BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
+    BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
+
 private:
-    base_atomic(const base_atomic &) /* = delete */ ;
-    void operator=(const base_atomic &) /* = delete */ ;
     value_type v_;
 };
 
@@ -412,12 +433,17 @@ private:
 template<bool Sign>
 class base_atomic<void *, void *, 4, Sign>
 {
+private:
     typedef base_atomic this_type;
     typedef void * value_type;
     typedef ptrdiff_t difference_type;
+
+protected:
+    typedef value_type value_arg_type;
+
 public:
+    BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
     BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT : v_(v) {}
-    base_atomic(void) {}
 
     void
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -499,21 +525,28 @@ public:
     }
 
     BOOST_ATOMIC_DECLARE_VOID_POINTER_OPERATORS
+
+    BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
+    BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
+
 private:
-    base_atomic(const base_atomic &) /* = delete */ ;
-    void operator=(const base_atomic &) /* = delete */ ;
     value_type v_;
 };
 
 template<typename T, bool Sign>
 class base_atomic<T *, void *, 4, Sign>
 {
+private:
     typedef base_atomic this_type;
     typedef T * value_type;
     typedef ptrdiff_t difference_type;
+
+protected:
+    typedef value_type value_arg_type;
+
 public:
+    BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
     BOOST_CONSTEXPR explicit base_atomic(value_type v) BOOST_NOEXCEPT : v_(v) {}
-    base_atomic(void) {}
 
     void
     store(value_type v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -595,9 +628,11 @@ public:
     }
 
     BOOST_ATOMIC_DECLARE_POINTER_OPERATORS
+
+    BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
+    BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
+
 private:
-    base_atomic(const base_atomic &) /* = delete */ ;
-    void operator=(const base_atomic &) /* = delete */ ;
     value_type v_;
 };
 
@@ -606,16 +641,20 @@ private:
 template<typename T, bool Sign>
 class base_atomic<T, void, 1, Sign>
 {
+private:
     typedef base_atomic this_type;
     typedef T value_type;
     typedef uint32_t storage_type;
+
+protected:
+    typedef value_type const& value_arg_type;
+
 public:
+    BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
     explicit base_atomic(value_type const& v) BOOST_NOEXCEPT : v_(0)
     {
         memcpy(&v_, &v, sizeof(value_type));
     }
-
-    base_atomic(void) {}
 
     void
     store(value_type const& v, memory_order order = memory_order_seq_cst) ) volatile BOOST_NOEXCEPT
@@ -688,25 +727,31 @@ public:
     }
 
     BOOST_ATOMIC_DECLARE_BASE_OPERATORS
+
+    BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
+    BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
+
 private:
-    base_atomic(const base_atomic &) /* = delete */ ;
-    void operator=(const base_atomic &) /* = delete */ ;
     storage_type v_;
 };
 
 template<typename T, bool Sign>
 class base_atomic<T, void, 2, Sign>
 {
+private:
     typedef base_atomic this_type;
     typedef T value_type;
     typedef uint32_t storage_type;
+
+protected:
+    typedef value_type const& value_arg_type;
+
 public:
+    BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
     explicit base_atomic(value_type const& v) BOOST_NOEXCEPT : v_(0)
     {
         memcpy(&v_, &v, sizeof(value_type));
     }
-
-    base_atomic(void) {}
 
     void
     store(value_type const& v, memory_order order = memory_order_seq_cst) ) volatile BOOST_NOEXCEPT
@@ -780,25 +825,31 @@ public:
     }
 
     BOOST_ATOMIC_DECLARE_BASE_OPERATORS
+
+    BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
+    BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
+
 private:
-    base_atomic(const base_atomic &) /* = delete */ ;
-    void operator=(const base_atomic &) /* = delete */ ;
     storage_type v_;
 };
 
 template<typename T, bool Sign>
 class base_atomic<T, void, 4, Sign>
 {
+private:
     typedef base_atomic this_type;
     typedef T value_type;
     typedef uint32_t storage_type;
+
+protected:
+    typedef value_type const& value_arg_type;
+
 public:
+    BOOST_DEFAULTED_FUNCTION(base_atomic(void), {})
     explicit base_atomic(value_type const& v) BOOST_NOEXCEPT : v_(0)
     {
         memcpy(&v_, &v, sizeof(value_type));
     }
-
-    base_atomic(void) {}
 
     void
     store(value_type const& v, memory_order order = memory_order_seq_cst) volatile BOOST_NOEXCEPT
@@ -872,9 +923,11 @@ public:
     }
 
     BOOST_ATOMIC_DECLARE_BASE_OPERATORS
+
+    BOOST_DELETED_FUNCTION(base_atomic(base_atomic const&))
+    BOOST_DELETED_FUNCTION(base_atomic& operator=(base_atomic const&))
+
 private:
-    base_atomic(const base_atomic &) /* = delete */ ;
-    void operator=(const base_atomic &) /* = delete */ ;
     storage_type v_;
 };
 
