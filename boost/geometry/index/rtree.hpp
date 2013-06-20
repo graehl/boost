@@ -56,6 +56,8 @@
 #include <boost/geometry/index/detail/rtree/rstar/rstar.hpp>
 //#include <boost/geometry/extensions/index/detail/rtree/kmeans/kmeans.hpp>
 
+#include <boost/geometry/index/detail/rtree/pack_create.hpp>
+
 #include <boost/geometry/index/inserter.hpp>
 
 #include <boost/geometry/index/detail/rtree/utilities/view.hpp>
@@ -235,16 +237,12 @@ public:
                  allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
-        BOOST_TRY
-        {
-            this->insert(first, last);
-        }
-        BOOST_CATCH(...)
-        {
-            this->raw_destroy(*this);
-            BOOST_RETHROW
-        }
-        BOOST_CATCH_END
+        typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
+        size_type vc = 0, ll = 0;
+        m_members.root = pack::apply(first, last, vc, ll,
+                                     m_members.parameters(), m_members.translator(), m_members.allocators());
+        m_members.values_count = vc;
+        m_members.leafs_level = ll;
     }
 
     /*!
@@ -269,16 +267,12 @@ public:
                           allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
-        BOOST_TRY
-        {
-            this->insert(rng);
-        }
-        BOOST_CATCH(...)
-        {
-            this->raw_destroy(*this);
-            BOOST_RETHROW
-        }
-        BOOST_CATCH_END
+        typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
+        size_type vc = 0, ll = 0;
+        m_members.root = pack::apply(::boost::begin(rng), ::boost::end(rng), vc, ll,
+                                     m_members.parameters(), m_members.translator(), m_members.allocators());
+        m_members.values_count = vc;
+        m_members.leafs_level = ll;
     }
 
     /*!

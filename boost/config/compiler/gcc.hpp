@@ -1,12 +1,12 @@
-//  (C) Copyright John Maddock 2001 - 2003. 
-//  (C) Copyright Darin Adler 2001 - 2002. 
-//  (C) Copyright Jens Maurer 2001 - 2002. 
-//  (C) Copyright Beman Dawes 2001 - 2003. 
-//  (C) Copyright Douglas Gregor 2002. 
-//  (C) Copyright David Abrahams 2002 - 2003. 
-//  (C) Copyright Synge Todo 2003. 
-//  Use, modification and distribution are subject to the 
-//  Boost Software License, Version 1.0. (See accompanying file 
+//  (C) Copyright John Maddock 2001 - 2003.
+//  (C) Copyright Darin Adler 2001 - 2002.
+//  (C) Copyright Jens Maurer 2001 - 2002.
+//  (C) Copyright Beman Dawes 2001 - 2003.
+//  (C) Copyright Douglas Gregor 2002.
+//  (C) Copyright David Abrahams 2002 - 2003.
+//  (C) Copyright Synge Todo 2003.
+//  Use, modification and distribution are subject to the
+//  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org for most recent version.
@@ -80,6 +80,11 @@
 #  endif
 #endif
 
+// GCC prior to 3.4 had #pragma once too but it didn't work well with filesystem links
+#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
+#define BOOST_HAS_PRAGMA_ONCE
+#endif
+
 #if __GNUC__ < 4 || ( __GNUC__ == 4 && __GNUC_MINOR__ < 4 )
 // Previous versions of GCC did not completely implement value-initialization:
 // GCC Bug 30111, "Value-initialization of POD base class doesn't initialize
@@ -104,7 +109,7 @@
 //
 #if !defined(__MINGW32__) && !defined(linux) && !defined(__linux) && !defined(__linux__)
 # define BOOST_HAS_THREADS
-#endif 
+#endif
 
 //
 // gcc has "long long"
@@ -127,7 +132,7 @@
 //
 #if __GNUC__ >= 4
 #  if (defined(_WIN32) || defined(__WIN32__) || defined(WIN32)) && !defined(__CYGWIN__)
-     // All Win32 development environments, including 64-bit Windows and MinGW, define 
+     // All Win32 development environments, including 64-bit Windows and MinGW, define
      // _WIN32 or one of its variant spellings. Note that Cygwin is a POSIX environment,
      // so does not define _WIN32 or its variants.
 #    define BOOST_HAS_DECLSPEC
@@ -190,7 +195,7 @@
 #  define BOOST_NO_CXX11_RVALUE_REFERENCES
 #  define BOOST_NO_CXX11_STATIC_ASSERT
 
-// Variadic templates compiler: 
+// Variadic templates compiler:
 //   http://www.generic-programming.org/~dgregor/cpp/variadic-templates.html
 #  if defined(__VARIADIC_TEMPLATES) || (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 4) && defined(__GXX_EXPERIMENTAL_CXX0X__))
 #    define BOOST_HAS_VARIADIC_TMPL
@@ -213,6 +218,11 @@
 
 #if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 5)
 #  define BOOST_NO_SFINAE_EXPR
+#endif
+
+// GCC 4.5 forbids declaration of defaulted functions in private or protected sections
+#if !defined(BOOST_NO_CXX11_DEFAULTED_FUNCTIONS) && (__GNUC__ == 4 && __GNUC_MINOR__ <= 5)
+#  define BOOST_NO_CXX11_NON_PUBLIC_DEFAULTED_FUNCTIONS
 #endif
 
 // C++0x features in 4.5.0 and later
@@ -248,6 +258,12 @@
 #if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 7) || !defined(__GXX_EXPERIMENTAL_CXX0X__)
 #  define BOOST_NO_CXX11_TEMPLATE_ALIASES
 #  define BOOST_NO_CXX11_USER_DEFINED_LITERALS
+#endif
+
+// C++0x features in 4.8.n and later
+//
+#if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8) || !defined(__GXX_EXPERIMENTAL_CXX0X__)
+#  define BOOST_NO_CXX11_ALIGNAS
 #endif
 
 // C++0x features in 4.8.1 and later

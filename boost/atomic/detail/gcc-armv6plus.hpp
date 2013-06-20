@@ -14,7 +14,7 @@
 #include <boost/cstdint.hpp>
 #include <boost/atomic/detail/config.hpp>
 
-#ifdef BOOST_ATOMIC_HAS_PRAGMA_ONCE
+#ifdef BOOST_HAS_PRAGMA_ONCE
 #pragma once
 #endif
 
@@ -222,6 +222,7 @@ public:
         return expected;
     }
 };
+
 #define BOOST_ATOMIC_FLAG_LOCK_FREE 2
 
 }
