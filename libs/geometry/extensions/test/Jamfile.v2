@@ -22,4 +22,5 @@ build-project algorithms ;
 build-project arithmetic ;
 build-project gis ;
 build-project iterators ;
+build-project nsphere ;
 

@@ -7,6 +7,7 @@
 #define BOOST_MP_INTEGER_HPP
 
 #include <boost/multiprecision/cpp_int.hpp>
+#include <boost/multiprecision/detail/bitscan.hpp>
 
 namespace boost{
 namespace multiprecision{
@@ -114,15 +115,24 @@ typename enable_if_c<is_integral<Integer>::value, unsigned>::type lsb(const Inte
          BOOST_THROW_EXCEPTION(std::range_error("Testing individual bits in negative values is not supported - results are undefined."));
       }
    }
-   unsigned index = 0;
-   Integer mask = 1;
+   return detail::find_lsb(val);
+}
 
-   while(((mask & val) == 0) && (index < sizeof(Integer) * CHAR_BIT))
+template <class Integer>
+typename enable_if_c<is_integral<Integer>::value, unsigned>::type msb(Integer val)
+{
+   if(val <= 0)
    {
-      ++index;
-      mask <<= 1;
+      if(val == 0)
+      {
+         BOOST_THROW_EXCEPTION(std::range_error("No bits were set in the operand."));
+      }
+      else
+      {
+         BOOST_THROW_EXCEPTION(std::range_error("Testing individual bits in negative values is not supported - results are undefined."));
+      }
    }
-   return index;
+   return detail::find_msb(val);
 }
 
 template <class Integer>

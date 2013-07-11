@@ -12,9 +12,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_STATISTICS_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_STATISTICS_HPP
 
-#include <boost/geometry/index/detail/indexable.hpp>
 #include <algorithm>
-#include <tuple>
+#include <boost/tuple/tuple.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace utilities {
 
